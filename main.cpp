@@ -93,19 +93,19 @@ GLuint loadTexture(const char* filename) {
 
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage2D(
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    gluBuild2DMipmaps(
         GL_TEXTURE_2D,
-        0,
         GL_RGB,
         width,
         height,
-        0,
         GL_RGB,
         GL_UNSIGNED_BYTE,
         data
@@ -161,9 +161,9 @@ void drawRoom() {
 
         glBegin(GL_QUADS);
             glTexCoord2f(0.0f, 0.0f);   glVertex3f(-6.0f, 0.01f, -6.0f);
-            glTexCoord2f(8.0f, 0.0f);   glVertex3f( 6.0f, 0.01f, -6.0f);
-            glTexCoord2f(8.0f, 8.0f);   glVertex3f( 6.0f, 0.01f,  6.0f);
-            glTexCoord2f(0.0f, 8.0f);   glVertex3f(-6.0f, 0.01f,  6.0f);
+            glTexCoord2f(1.0f, 0.0f);   glVertex3f( 6.0f, 0.01f, -6.0f);
+            glTexCoord2f(1.0f, 1.0f);   glVertex3f( 6.0f, 0.01f,  6.0f);
+            glTexCoord2f(0.0f, 1.0f);   glVertex3f(-6.0f, 0.01f,  6.0f);
         glEnd();
 
         glDisable(GL_TEXTURE_2D);
