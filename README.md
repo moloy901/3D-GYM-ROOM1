@@ -80,6 +80,10 @@ Keep `green.jpg` in the same directory as the executable when running, because t
 | `F` | Move camera right |
 | `Q` | Move camera up |
 | `E` | Move camera down |
+| `Up Arrow` | Look up |
+| `Down Arrow` | Look down |
+| `Left Arrow` | Look left |
+| `Right Arrow` | Look right |
 | `9` | Switch to dumbbell view |
 | `0` | Switch to bench press view |
 | `R` | Reset to normal view |

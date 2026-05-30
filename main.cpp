@@ -10,6 +10,9 @@ bool windowOpen = false;
 float windowOpenAmount = 0.0f;
 
 GLuint floorTexture = 0;
+GLuint frontWallTexture = 0;
+GLuint wallTexture = 0;
+GLuint rightWallTexture = 0;
 
 float fanAngle = 0.0f;
 float fanSpeed = 8.0f;
@@ -18,6 +21,8 @@ bool fanOn = true;
 float treadmillAngle = 0.0f;
 float dumbbellY[6] = {0, 0, 0, 0, 0, 0};
 float barbellY = 0.0f;
+const float BARBELL_BASE_Y = 1.70f;
+const float BARBELL_LIFT_RANGE = 0.35f;
 
 bool dumbbellUp[6] = {false, false, false, false, false, false};
 bool barbellUp = false;
@@ -75,6 +80,31 @@ void drawCylinder(float radius, float height) {
     gluDeleteQuadric(quad);
 }
 
+void drawGroundShadow(float x, float z, float width, float depth, float alpha) {
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.0f, 0.0f, 0.0f, alpha);
+
+    glBegin(GL_QUADS);
+        glVertex3f(x - width / 2.0f, 0.025f, z - depth / 2.0f);
+        glVertex3f(x + width / 2.0f, 0.025f, z - depth / 2.0f);
+        glVertex3f(x + width / 2.0f, 0.025f, z + depth / 2.0f);
+        glVertex3f(x - width / 2.0f, 0.025f, z + depth / 2.0f);
+    glEnd();
+
+    glDisable(GL_BLEND);
+    glEnable(GL_LIGHTING);
+}
+
+void drawSceneShadows() {
+    drawGroundShadow(3.6f, -1.5f, 3.6f, 1.7f, 0.22f);
+    drawGroundShadow(0.0f, -0.75f, 4.7f, 4.9f, 0.18f);
+    drawGroundShadow(-3.5f, 1.5f, 4.9f, 1.2f, 0.18f);
+    drawGroundShadow(0.0f, 4.0f, 5.0f, 1.0f, 0.10f);
+}
+
 GLuint loadTexture(const char* filename) {
     int width, height, channels;
 
@@ -120,17 +150,23 @@ GLuint loadTexture(const char* filename) {
 
 void setupLights() {
     glEnable(GL_LIGHTING);
+    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+
+    GLfloat globalAmbient[] = {0.10f, 0.10f, 0.10f, 1.0f};
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
 
     if (lightWhite) {
         glEnable(GL_LIGHT0);
 
-        GLfloat pos0[] = {0, 5.8f, 2, 1};
-        GLfloat white[] = {0.90f, 0.90f, 0.75f, 1.0f};
-        GLfloat ambient0[] = {0.20f, 0.20f, 0.15f, 1.0f};
+        GLfloat pos0[] = {0.0f, 5.75f, 1.2f, 1.0f};
+        GLfloat white[] = {0.82f, 0.80f, 0.68f, 1.0f};
+        GLfloat ambient0[] = {0.12f, 0.12f, 0.10f, 1.0f};
+        GLfloat spec0[] = {0.55f, 0.55f, 0.48f, 1.0f};
 
         glLightfv(GL_LIGHT0, GL_POSITION, pos0);
         glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
         glLightfv(GL_LIGHT0, GL_AMBIENT, ambient0);
+        glLightfv(GL_LIGHT0, GL_SPECULAR, spec0);
     } else {
         glDisable(GL_LIGHT0);
     }
@@ -138,15 +174,33 @@ void setupLights() {
     if (lightGreen) {
         glEnable(GL_LIGHT1);
 
-        GLfloat pos1[] = {-4, 5.8f, -2, 1};
-        GLfloat green[] = {0.0f, 0.85f, 0.15f, 1.0f};
-        GLfloat ambient1[] = {0.0f, 0.15f, 0.05f, 1.0f};
+        GLfloat pos1[] = {-4.2f, 5.75f, -2.3f, 1.0f};
+        GLfloat green[] = {0.0f, 0.48f, 0.12f, 1.0f};
+        GLfloat ambient1[] = {0.0f, 0.07f, 0.03f, 1.0f};
+        GLfloat spec1[] = {0.05f, 0.28f, 0.08f, 1.0f};
 
         glLightfv(GL_LIGHT1, GL_POSITION, pos1);
         glLightfv(GL_LIGHT1, GL_DIFFUSE, green);
         glLightfv(GL_LIGHT1, GL_AMBIENT, ambient1);
+        glLightfv(GL_LIGHT1, GL_SPECULAR, spec1);
     } else {
         glDisable(GL_LIGHT1);
+    }
+
+    if (lightWhite) {
+        glEnable(GL_LIGHT2);
+
+        GLfloat pos2[] = {4.5f, 4.55f, -5.35f, 1.0f};
+        GLfloat tubeWhite[] = {0.95f, 0.92f, 0.82f, 1.0f};
+        GLfloat tubeAmbient[] = {0.08f, 0.08f, 0.07f, 1.0f};
+        GLfloat tubeSpec[] = {0.75f, 0.72f, 0.65f, 1.0f};
+
+        glLightfv(GL_LIGHT2, GL_POSITION, pos2);
+        glLightfv(GL_LIGHT2, GL_DIFFUSE, tubeWhite);
+        glLightfv(GL_LIGHT2, GL_AMBIENT, tubeAmbient);
+        glLightfv(GL_LIGHT2, GL_SPECULAR, tubeSpec);
+    } else {
+        glDisable(GL_LIGHT2);
     }
 }
 
@@ -175,29 +229,82 @@ void drawRoom() {
         glPopMatrix();
     }
 
-    // Back wall
-    glColor3f(0.45f, 0.68f, 0.95f);
-    glPushMatrix();
-    glTranslatef(0, 3, -6);
-    drawCube(12, 6, 0.2f);
-    glPopMatrix();
+    // Front wall
+    if (frontWallTexture != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, frontWallTexture);
+        glColor3f(1.0f, 1.0f, 1.0f);
+
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f);   glVertex3f( 6.0f, 0.0f, -5.89f);
+            glTexCoord2f(1.0f, 0.0f);   glVertex3f(-6.0f, 0.0f, -5.89f);
+            glTexCoord2f(1.0f, 1.0f);   glVertex3f(-6.0f, 6.0f, -5.89f);
+            glTexCoord2f(0.0f, 1.0f);   glVertex3f( 6.0f, 6.0f, -5.89f);
+        glEnd();
+
+        glDisable(GL_TEXTURE_2D);
+    } else {
+        glColor3f(0.45f, 0.68f, 0.95f);
+        glPushMatrix();
+        glTranslatef(0, 3, -6);
+        drawCube(12, 6, 0.2f);
+        glPopMatrix();
+    }
 
     // Left wall
-    glColor3f(0.50f, 0.75f, 1.0f);
-    glPushMatrix();
-    glTranslatef(-6, 3, 0);
-    drawCube(0.2f, 6, 12);
-    glPopMatrix();
+    if (wallTexture != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, wallTexture);
+        glColor3f(1.0f, 1.0f, 1.0f);
+
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f);   glVertex3f(-5.89f, 0.0f,  6.0f);
+            glTexCoord2f(1.0f, 0.0f);   glVertex3f(-5.89f, 0.0f, -6.0f);
+            glTexCoord2f(1.0f, 1.0f);   glVertex3f(-5.89f, 6.0f, -6.0f);
+            glTexCoord2f(0.0f, 1.0f);   glVertex3f(-5.89f, 6.0f,  6.0f);
+        glEnd();
+
+        glDisable(GL_TEXTURE_2D);
+    } else {
+        glColor3f(0.50f, 0.75f, 1.0f);
+        glPushMatrix();
+        glTranslatef(-6, 3, 0);
+        drawCube(0.2f, 6, 12);
+        glPopMatrix();
+    }
 
     // Right wall
-    glColor3f(0.50f, 0.75f, 1.0f);
-    glPushMatrix();
-    glTranslatef(6, 3, 0);
-    drawCube(0.2f, 6, 12);
-    glPopMatrix();
+    if (rightWallTexture != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, rightWallTexture);
+        glColor3f(1.0f, 1.0f, 1.0f);
+
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f);   glVertex3f(5.89f, 0.0f, -6.0f);
+            glTexCoord2f(1.0f, 0.0f);   glVertex3f(5.89f, 0.0f,  6.0f);
+            glTexCoord2f(1.0f, 1.0f);   glVertex3f(5.89f, 6.0f,  6.0f);
+            glTexCoord2f(0.0f, 1.0f);   glVertex3f(5.89f, 6.0f, -6.0f);
+        glEnd();
+
+        glDisable(GL_TEXTURE_2D);
+    } else {
+        glColor3f(0.50f, 0.75f, 1.0f);
+        glPushMatrix();
+        glTranslatef(6, 3, 0);
+        drawCube(0.2f, 6, 12);
+        glPopMatrix();
+    }
 
     // Ceiling
-    glColor3f(0.12f, 0.22f, 0.32f);
+    if (lightWhite && lightGreen)
+        glColor3f(0.22f, 0.38f, 0.30f);
+    else if (lightWhite)
+        glColor3f(0.28f, 0.30f, 0.27f);
+    else if (lightGreen)
+        glColor3f(0.05f, 0.24f, 0.10f);
+    else
+        glColor3f(0.04f, 0.05f, 0.06f);
+
     glPushMatrix();
     glTranslatef(0, 6, 0);
     drawCube(12, 0.1f, 12);
@@ -414,7 +521,7 @@ void drawManOnBench() {
     glutSolidCube(1.0);
     glPopMatrix();
 
-    float barY = 2.15f + barbellY;
+    float barY = BARBELL_BASE_Y + barbellY;
     float barZ = -0.15f;
 
     float shoulderY = 1.00f;
@@ -493,13 +600,13 @@ void drawBenchPress() {
     glColor3f(0.45f, 0.45f, 0.45f);
 
     glPushMatrix();
-    glTranslatef(-1.65f, 1.25f, -0.15f);
-    drawCube(0.18f, 2.0f, 0.18f);
+    glTranslatef(-1.65f, 0.92f, -0.15f);
+    drawCube(0.18f, 1.35f, 0.18f);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(1.65f, 1.25f, -0.15f);
-    drawCube(0.18f, 2.0f, 0.18f);
+    glTranslatef(1.65f, 0.92f, -0.15f);
+    drawCube(0.18f, 1.35f, 0.18f);
     glPopMatrix();
 
     glPushMatrix();
@@ -515,30 +622,32 @@ void drawBenchPress() {
     glColor3f(0.25f, 0.25f, 0.25f);
 
     glPushMatrix();
-    glTranslatef(-1.65f, 2.0f, -0.15f);
+    glTranslatef(-1.65f, 1.58f, -0.15f);
     drawCube(0.45f, 0.08f, 0.18f);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(1.65f, 2.0f, -0.15f);
+    glTranslatef(1.65f, 1.58f, -0.15f);
     drawCube(0.45f, 0.08f, 0.18f);
     glPopMatrix();
 
     glColor3f(0.02f, 0.02f, 0.02f);
     glPushMatrix();
-    glTranslatef(-1.9f, 2.15f + barbellY, -0.15f);
+    glTranslatef(-1.9f, BARBELL_BASE_Y + barbellY, -0.15f);
     glRotatef(90, 0, 1, 0);
     drawCylinder(0.05f, 3.8f);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-2.05f, 2.15f + barbellY, -0.15f);
-    glutSolidSphere(0.32f, 25, 25);
+    glTranslatef(-2.18f, BARBELL_BASE_Y + barbellY, -0.15f);
+    glRotatef(90, 0, 1, 0);
+    drawCylinder(0.32f, 0.26f);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(2.05f, 2.15f + barbellY, -0.15f);
-    glutSolidSphere(0.32f, 25, 25);
+    glTranslatef(1.92f, BARBELL_BASE_Y + barbellY, -0.15f);
+    glRotatef(90, 0, 1, 0);
+    drawCylinder(0.32f, 0.26f);
     glPopMatrix();
 
     glPopMatrix();
@@ -552,10 +661,32 @@ void drawTreadmill() {
     glColor3f(0.35f, 0.75f, 0.75f);
     drawCube(3.0f, 0.25f, 1.3f);
 
+    glColor3f(0.08f, 0.20f, 0.20f);
+    glPushMatrix();
+    glTranslatef(-1.22f, 0.18f, -0.55f);
+    drawCube(0.14f, 0.12f, 0.10f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-1.22f, 0.18f, 0.55f);
+    drawCube(0.14f, 0.12f, 0.10f);
+    glPopMatrix();
+
     glColor3f(0.0f, 0.0f, 0.0f);
     glPushMatrix();
     glTranslatef(0, 0.28f, 0);
     drawCube(2.4f, 0.06f, 0.9f);
+    glPopMatrix();
+
+    glColor3f(0.18f, 0.18f, 0.18f);
+    glPushMatrix();
+    glTranslatef(0, 0.35f, -0.52f);
+    drawCube(2.6f, 0.05f, 0.08f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0, 0.35f, 0.52f);
+    drawCube(2.6f, 0.05f, 0.08f);
     glPopMatrix();
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -590,12 +721,8 @@ void drawTreadmill() {
     drawCube(0.20f, 0.55f, 1.0f);
     glPopMatrix();
 
-    float r = (sin(treadmillAngle * 0.08f) + 1.0f) / 2.0f;
-    float g = (sin(treadmillAngle * 0.10f + 2.0f) + 1.0f) / 2.0f;
-    float b = (sin(treadmillAngle * 0.12f + 4.0f) + 1.0f) / 2.0f;
-
     glDisable(GL_LIGHTING);
-    glColor3f(r, g, b);
+    glColor3f(0.08f, 0.55f, 0.42f);
 
     glPushMatrix();
     glTranslatef(1.45f, 1.78f, 0);
@@ -875,15 +1002,82 @@ void drawMirror() {
     glPushMatrix();
     glTranslatef(4.5f, 3.0f, -5.85f);
 
-    glColor3f(0.8f, 0.9f, 1.0f);
+    glColor3f(0.62f, 0.74f, 0.82f);
     drawCube(1.5f, 2.0f, 0.05f);
 
-    glColor3f(0.05f, 0.05f, 0.05f);
+    // Soft glass shine. A clean mirror looks better than a fake flat reflection.
+    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glPushMatrix();
-    glTranslatef(0, 0, 0.06f);
-    drawCube(1.7f, 0.1f, 0.08f);
+    glTranslatef(-0.25f, 0.35f, 0.07f);
+    glRotatef(-18, 0, 0, 1);
+    glColor4f(1.0f, 1.0f, 1.0f, lightWhite ? 0.30f : 0.08f);
+    glBegin(GL_QUADS);
+        glVertex3f(-0.06f, -0.72f, 0.0f);
+        glVertex3f( 0.08f, -0.72f, 0.0f);
+        glVertex3f( 0.08f,  0.72f, 0.0f);
+        glVertex3f(-0.06f,  0.72f, 0.0f);
+    glEnd();
     glPopMatrix();
 
+    glPushMatrix();
+    glTranslatef(0.0f, 0.68f, 0.075f);
+    glColor4f(1.0f, 0.96f, 0.82f, lightWhite ? 0.34f : 0.05f);
+    glBegin(GL_QUADS);
+        glVertex3f(-0.62f, -0.05f, 0.0f);
+        glVertex3f( 0.62f, -0.05f, 0.0f);
+        glVertex3f( 0.62f,  0.05f, 0.0f);
+        glVertex3f(-0.62f,  0.05f, 0.0f);
+    glEnd();
+    glPopMatrix();
+
+    glDisable(GL_BLEND);
+    glEnable(GL_LIGHTING);
+
+    glPopMatrix();
+}
+
+void drawTubeLight() {
+    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    if (lightWhite) {
+        glColor4f(1.0f, 0.95f, 0.72f, 0.28f);
+        glBegin(GL_QUADS);
+            glVertex3f(3.25f, 4.08f, -5.86f);
+            glVertex3f(5.75f, 4.08f, -5.86f);
+            glVertex3f(5.75f, 4.78f, -5.86f);
+            glVertex3f(3.25f, 4.78f, -5.86f);
+        glEnd();
+    }
+
+    glDisable(GL_BLEND);
+    glEnable(GL_LIGHTING);
+
+    glPushMatrix();
+    glTranslatef(3.60f, 4.52f, -5.70f);
+    glRotatef(90, 0, 1, 0);
+
+    if (lightWhite)
+        glColor3f(1.0f, 0.96f, 0.82f);
+    else
+        glColor3f(0.28f, 0.28f, 0.25f);
+
+    drawCylinder(0.045f, 1.80f);
+    glPopMatrix();
+
+    glColor3f(0.08f, 0.08f, 0.08f);
+    glPushMatrix();
+    glTranslatef(3.55f, 4.52f, -5.70f);
+    drawCube(0.10f, 0.12f, 0.08f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(5.45f, 4.52f, -5.70f);
+    drawCube(0.10f, 0.12f, 0.08f);
     glPopMatrix();
 }
 
@@ -915,9 +1109,11 @@ void display() {
     setupLights();
 
     drawRoom();
+    drawSceneShadows();
     drawLightIndicators();
     drawWindow();
     drawMirror();
+    drawTubeLight();
     drawDumbbellRack();
     drawBenchPress();
     drawTreadmill();
@@ -965,7 +1161,7 @@ void update(int value) {
             dumbbellY[i] -= 0.03f;
     }
 
-    float barTarget = barbellUp ? 0.55f : 0.0f;
+    float barTarget = barbellUp ? BARBELL_LIFT_RANGE : 0.0f;
 
     if (barbellY < barTarget)
         barbellY += 0.035f;
@@ -1096,16 +1292,66 @@ void keyboard(unsigned char key, int x, int y) {
     glutPostRedisplay();
 }
 
+void specialKeyboard(int key, int x, int y) {
+    switch (key) {
+    case GLUT_KEY_UP:
+        lookY += 0.25f;
+        break;
+
+    case GLUT_KEY_DOWN:
+        lookY -= 0.25f;
+        break;
+
+    case GLUT_KEY_LEFT:
+        lookX -= 0.25f;
+        break;
+
+    case GLUT_KEY_RIGHT:
+        lookX += 0.25f;
+        break;
+    }
+
+    if (lookY < 0.2f)
+        lookY = 0.2f;
+
+    if (lookY > 5.5f)
+        lookY = 5.5f;
+
+    glutPostRedisplay();
+}
+
 void init() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_NORMALIZE);
+
+    GLfloat specular[] = {0.28f, 0.28f, 0.28f, 1.0f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 24.0f);
 
     glClearColor(0.14f, 0.20f, 0.32f, 1.0f);
 
     floorTexture = loadTexture("green.jpg");
+    frontWallTexture = loadTexture("front.png");
+    wallTexture = loadTexture("wall.png");
+    rightWallTexture = loadTexture("right_wall.png");
 
     if (floorTexture == 0) {
         printf("green.jpg load hoy nai. Floor fallback green hobe.\n");
+    }
+
+    if (frontWallTexture == 0) {
+        printf("front.png load hoy nai. Front wall fallback blue hobe.\n");
+    }
+
+    if (wallTexture == 0) {
+        printf("wall.png load hoy nai. Left wall fallback blue hobe.\n");
+    }
+
+    if (rightWallTexture == 0) {
+        printf("right_wall.png load hoy nai. Right wall fallback blue hobe.\n");
     }
 
     glMatrixMode(GL_MODELVIEW);
@@ -1121,6 +1367,7 @@ int main(int argc, char** argv) {
 
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
+    glutSpecialFunc(specialKeyboard);
     glutReshapeFunc(reshape);
     glutTimerFunc(16, update, 0);
 
