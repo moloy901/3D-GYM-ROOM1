@@ -1,3 +1,5 @@
+#include <windows.h>
+#include <mmsystem.h>
 #include <GL/glut.h>
 #include <cmath>
 #include <cstdio>
@@ -39,6 +41,13 @@ float camZ = 12.0f;
 float lookX = 0.0f;
 float lookY = 2.0f;
 float lookZ = 0.0f;
+
+void playBenchPressSound() {
+    mciSendStringA("stop plates_sound", NULL, 0, NULL);
+    mciSendStringA("close plates_sound", NULL, 0, NULL);
+    mciSendStringA("open \"plates.mp3\" type mpegvideo alias plates_sound", NULL, 0, NULL);
+    mciSendStringA("play plates_sound from 0", NULL, 0, NULL);
+}
 
 void setNormalView() {
     camX = 0.0f;
@@ -1543,6 +1552,7 @@ void keyboard(unsigned char key, int x, int y) {
     case 'b':
     case 'B':
         barbellUp = !barbellUp;
+        playBenchPressSound();
         break;
 
     case 'u':

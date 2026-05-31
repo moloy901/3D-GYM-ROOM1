@@ -18,6 +18,7 @@ A 3D gym room scene built with C++ and OpenGL/GLUT. The project renders a gym en
 |-- main.cpp                         # Main OpenGL source file
 |-- stb_image.h                      # Image loading library
 |-- green.jpg                        # Floor texture
+|-- plates.mp3                       # Bench press plate sound
 |-- 3D_GYM_ROOM1.cbp                 # Code::Blocks project file
 |-- seamless-green-grass-pattern/    # Additional texture/assets
 |-- bin/                             # Build output
@@ -62,14 +63,14 @@ Run:
 ./3D_GYM_ROOM1.exe
 ```
 
-Keep `green.jpg` in the same directory as the executable when running, because the program loads it at startup.
+Keep `green.jpg` and `plates.mp3` in the same directory as the executable when running, because the program loads them at startup/runtime.
 
 ## Controls
 
 | Key | Action |
 | --- | --- |
 | `1` - `6` | Toggle individual dumbbell animations |
-| `B` | Toggle barbell animation |
+| `B` | Toggle barbell animation with `plates.mp3` sound |
 | `U` | Toggle pull-up animation |
 | `7` | Toggle white light |
 | `8` | Toggle green light |
