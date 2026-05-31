@@ -80,6 +80,22 @@ void drawCylinder(float radius, float height) {
     gluDeleteQuadric(quad);
 }
 
+void setMaterialShininess(float value) {
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, value);
+}
+
+void drawWallText(float x, float y, float z, const char* text, float scale) {
+    glPushMatrix();
+    glTranslatef(x, y, z);
+    glScalef(scale, scale, scale);
+
+    for (const char* c = text; *c != '\0'; c++) {
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+    }
+
+    glPopMatrix();
+}
+
 void drawGroundShadow(float x, float z, float width, float depth, float alpha) {
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
@@ -341,6 +357,54 @@ void drawLightIndicators() {
     glEnable(GL_LIGHTING);
 }
 
+void drawWallDecorations() {
+    glDisable(GL_LIGHTING);
+
+    // Motivational poster on the front-left wall
+    glColor3f(0.04f, 0.04f, 0.05f);
+    glPushMatrix();
+    glTranslatef(-3.85f, 3.90f, -5.82f);
+    drawCube(1.95f, 1.05f, 0.030f);
+    glPopMatrix();
+
+    glColor3f(0.95f, 0.18f, 0.06f);
+    glPushMatrix();
+    glTranslatef(-3.85f, 3.90f, -5.79f);
+    drawCube(1.70f, 0.78f, 0.025f);
+    glPopMatrix();
+
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glPushMatrix();
+    glTranslatef(-3.85f, 4.41f, -5.75f);
+    drawCube(1.95f, 0.08f, 0.040f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-3.85f, 3.39f, -5.75f);
+    drawCube(1.95f, 0.08f, 0.040f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-4.825f, 3.90f, -5.75f);
+    drawCube(0.08f, 1.02f, 0.040f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-2.875f, 3.90f, -5.75f);
+    drawCube(0.08f, 1.02f, 0.040f);
+    glPopMatrix();
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    drawWallText(-4.42f, 4.06f, -5.74f, "NO PAIN", 0.0018f);
+    drawWallText(-4.38f, 3.78f, -5.74f, "NO GAIN", 0.0018f);
+
+    // Gym room title above the front window
+    glColor3f(0.95f, 0.18f, 0.06f);
+    drawWallText(-0.98f, 5.21f, -5.74f, "GYM ROOM", 0.0030f);
+
+    glEnable(GL_LIGHTING);
+}
+
 void drawDumbbell(float x, float y, float z, float size) {
     glPushMatrix();
 
@@ -352,19 +416,21 @@ void drawDumbbell(float x, float y, float z, float size) {
     float plateBig     = 0.19f * size;
     float plateWidth   = 0.08f * size;
 
-    glColor3f(0.9f, 0.9f, 0.9f);
+    setMaterialShininess(82.0f);
+    glColor3f(0.88f, 0.90f, 0.92f);
     glPushMatrix();
     glTranslatef(0, 0, -handleLength / 2.0f);
     drawCylinder(0.04f * size, handleLength);
     glPopMatrix();
 
-    glColor3f(0.20f, 0.20f, 0.20f);
+    setMaterialShininess(12.0f);
+    glColor3f(0.02f, 0.02f, 0.02f);
     glPushMatrix();
     glTranslatef(0, 0, -0.12f * size);
     drawCylinder(0.055f * size, 0.24f * size);
     glPopMatrix();
 
-    glColor3f(0.75f, 0.75f, 0.75f);
+    glColor3f(0.05f, 0.05f, 0.05f);
 
     glPushMatrix();
     glTranslatef(0, 0, -0.38f * size);
@@ -386,7 +452,8 @@ void drawDumbbell(float x, float y, float z, float size) {
     drawCylinder(plateSmall, plateWidth);
     glPopMatrix();
 
-    glColor3f(1.0f, 0.75f, 0.0f);
+    setMaterialShininess(48.0f);
+    glColor3f(0.95f, 0.18f, 0.06f);
 
     glPushMatrix();
     glTranslatef(0, 0, -0.57f * size);
@@ -398,6 +465,18 @@ void drawDumbbell(float x, float y, float z, float size) {
     drawCylinder(0.055f * size, 0.04f * size);
     glPopMatrix();
 
+    glColor3f(0.80f, 0.82f, 0.84f);
+    glPushMatrix();
+    glTranslatef(0, 0, -0.32f * size);
+    drawCylinder(0.050f * size, 0.035f * size);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0, 0, 0.27f * size);
+    drawCylinder(0.050f * size, 0.035f * size);
+    glPopMatrix();
+
+    setMaterialShininess(24.0f);
     glPopMatrix();
 }
 
@@ -572,7 +651,8 @@ void drawBenchPress() {
     glPushMatrix();
     glTranslatef(0, 0, -1.5f);
 
-    glColor3f(0.02f, 0.02f, 0.02f);
+    setMaterialShininess(16.0f);
+    glColor3f(0.03f, 0.03f, 0.035f);
     glPushMatrix();
     glTranslatef(0, 0.55f, 0.75f);
     drawCube(1.15f, 0.18f, 4.6f);
@@ -580,7 +660,8 @@ void drawBenchPress() {
 
     drawManOnBench();
 
-    glColor3f(0.35f, 0.35f, 0.35f);
+    setMaterialShininess(72.0f);
+    glColor3f(0.62f, 0.64f, 0.66f);
 
     glPushMatrix();
     glTranslatef(0, 0.25f, -1.1f);
@@ -597,7 +678,7 @@ void drawBenchPress() {
     drawCube(0.15f, 0.5f, 0.15f);
     glPopMatrix();
 
-    glColor3f(0.45f, 0.45f, 0.45f);
+    glColor3f(0.70f, 0.72f, 0.74f);
 
     glPushMatrix();
     glTranslatef(-1.65f, 0.92f, -0.15f);
@@ -619,7 +700,8 @@ void drawBenchPress() {
     drawCube(0.65f, 0.12f, 0.35f);
     glPopMatrix();
 
-    glColor3f(0.25f, 0.25f, 0.25f);
+    setMaterialShininess(16.0f);
+    glColor3f(0.10f, 0.10f, 0.11f);
 
     glPushMatrix();
     glTranslatef(-1.65f, 1.58f, -0.15f);
@@ -631,13 +713,16 @@ void drawBenchPress() {
     drawCube(0.45f, 0.08f, 0.18f);
     glPopMatrix();
 
-    glColor3f(0.02f, 0.02f, 0.02f);
+    setMaterialShininess(90.0f);
+    glColor3f(0.86f, 0.88f, 0.90f);
     glPushMatrix();
     glTranslatef(-1.9f, BARBELL_BASE_Y + barbellY, -0.15f);
     glRotatef(90, 0, 1, 0);
     drawCylinder(0.05f, 3.8f);
     glPopMatrix();
 
+    setMaterialShininess(10.0f);
+    glColor3f(0.03f, 0.03f, 0.035f);
     glPushMatrix();
     glTranslatef(-2.18f, BARBELL_BASE_Y + barbellY, -0.15f);
     glRotatef(90, 0, 1, 0);
@@ -650,6 +735,21 @@ void drawBenchPress() {
     drawCylinder(0.32f, 0.26f);
     glPopMatrix();
 
+    setMaterialShininess(48.0f);
+    glColor3f(0.95f, 0.18f, 0.06f);
+    glPushMatrix();
+    glTranslatef(-1.88f, BARBELL_BASE_Y + barbellY, -0.15f);
+    glRotatef(90, 0, 1, 0);
+    drawCylinder(0.11f, 0.06f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(1.82f, BARBELL_BASE_Y + barbellY, -0.15f);
+    glRotatef(90, 0, 1, 0);
+    drawCylinder(0.11f, 0.06f);
+    glPopMatrix();
+
+    setMaterialShininess(24.0f);
     glPopMatrix();
 }
 
@@ -658,10 +758,12 @@ void drawTreadmill() {
     glTranslatef(3.6f, 0.25f, -1.5f);
     glRotatef(90, 0, 1, 0);
 
-    glColor3f(0.35f, 0.75f, 0.75f);
+    setMaterialShininess(64.0f);
+    glColor3f(0.58f, 0.62f, 0.64f);
     drawCube(3.0f, 0.25f, 1.3f);
 
-    glColor3f(0.08f, 0.20f, 0.20f);
+    setMaterialShininess(12.0f);
+    glColor3f(0.03f, 0.03f, 0.035f);
     glPushMatrix();
     glTranslatef(-1.22f, 0.18f, -0.55f);
     drawCube(0.14f, 0.12f, 0.10f);
@@ -672,13 +774,14 @@ void drawTreadmill() {
     drawCube(0.14f, 0.12f, 0.10f);
     glPopMatrix();
 
-    glColor3f(0.0f, 0.0f, 0.0f);
+    glColor3f(0.01f, 0.01f, 0.012f);
     glPushMatrix();
     glTranslatef(0, 0.28f, 0);
     drawCube(2.4f, 0.06f, 0.9f);
     glPopMatrix();
 
-    glColor3f(0.18f, 0.18f, 0.18f);
+    setMaterialShininess(88.0f);
+    glColor3f(0.78f, 0.80f, 0.82f);
     glPushMatrix();
     glTranslatef(0, 0.35f, -0.52f);
     drawCube(2.6f, 0.05f, 0.08f);
@@ -689,14 +792,15 @@ void drawTreadmill() {
     drawCube(2.6f, 0.05f, 0.08f);
     glPopMatrix();
 
-    glColor3f(1.0f, 1.0f, 1.0f);
+    glColor3f(0.95f, 0.18f, 0.06f);
     glPushMatrix();
     float stripeMove = sin(treadmillAngle * 0.05f) * 0.7f;
     glTranslatef(stripeMove, 0.34f, 0);
     drawCube(0.20f, 0.02f, 0.85f);
     glPopMatrix();
 
-    glColor3f(0.35f, 0.35f, 0.35f);
+    setMaterialShininess(76.0f);
+    glColor3f(0.70f, 0.72f, 0.74f);
 
     glPushMatrix();
     glTranslatef(1.25f, 0.9f, -0.45f);
@@ -715,7 +819,19 @@ void drawTreadmill() {
     drawCube(0.12f, 0.12f, 1.2f);
     glPopMatrix();
 
-    glColor3f(0.15f, 0.15f, 0.15f);
+    setMaterialShininess(10.0f);
+    glColor3f(0.03f, 0.03f, 0.035f);
+    glPushMatrix();
+    glTranslatef(1.25f, 1.55f, -0.52f);
+    drawCube(0.18f, 0.16f, 0.20f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(1.25f, 1.55f, 0.52f);
+    drawCube(0.18f, 0.16f, 0.20f);
+    glPopMatrix();
+
+    glColor3f(0.08f, 0.08f, 0.09f);
     glPushMatrix();
     glTranslatef(1.45f, 1.78f, 0);
     drawCube(0.20f, 0.55f, 1.0f);
@@ -729,14 +845,55 @@ void drawTreadmill() {
     drawCube(0.24f, 0.35f, 0.75f);
     glPopMatrix();
 
+    glColor3f(0.01f, 0.03f, 0.04f);
+    glPushMatrix();
+    glTranslatef(1.30f, 1.84f, 0.0f);
+    drawCube(0.05f, 0.24f, 0.62f);
+    glPopMatrix();
+
+    glColor3f(0.00f, 0.95f, 0.62f);
+    glPushMatrix();
+    glTranslatef(1.265f, 1.89f, -0.12f);
+    drawCube(0.025f, 0.035f, 0.22f);
+    glPopMatrix();
+
+    glColor3f(0.15f, 0.78f, 1.0f);
+    glPushMatrix();
+    glTranslatef(1.265f, 1.81f, 0.12f);
+    drawCube(0.025f, 0.035f, 0.24f);
+    glPopMatrix();
+
+    glColor3f(0.95f, 0.18f, 0.06f);
+    for (int i = 0; i < 3; i++) {
+        glPushMatrix();
+        glTranslatef(1.26f, 1.68f, -0.20f + i * 0.20f);
+        glutSolidSphere(0.045f, 12, 12);
+        glPopMatrix();
+    }
+
     glEnable(GL_LIGHTING);
 
+    setMaterialShininess(24.0f);
     glPopMatrix();
 }
 
 void drawFan(float x, float z) {
     glPushMatrix();
-    glTranslatef(x, 5.7f, z);
+    glTranslatef(x, 5.35f, z);
+
+    glColor3f(0.18f, 0.18f, 0.18f);
+    glPushMatrix();
+    glTranslatef(0.0f, 0.55f, 0.0f);
+    glRotatef(-90, 1, 0, 0);
+    drawCylinder(0.05f, 0.10f);
+    glPopMatrix();
+
+    glColor3f(0.22f, 0.22f, 0.22f);
+    glPushMatrix();
+    glTranslatef(0.0f, 0.14f, 0.0f);
+    glRotatef(-90, 1, 0, 0);
+    drawCylinder(0.035f, 0.41f);
+    glPopMatrix();
 
     glColor3f(0.2f, 0.2f, 0.2f);
     glutSolidSphere(0.18f, 20, 20);
@@ -1002,8 +1159,38 @@ void drawMirror() {
     glPushMatrix();
     glTranslatef(4.5f, 3.0f, -5.85f);
 
-    glColor3f(0.62f, 0.74f, 0.82f);
+    setMaterialShininess(92.0f);
+    glColor3f(0.72f, 0.74f, 0.76f);
+
+    glPushMatrix();
+    glTranslatef(0.0f, 0.96f, 0.04f);
+    drawCube(1.50f, 0.08f, 0.08f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.0f, -0.96f, 0.04f);
+    drawCube(1.50f, 0.08f, 0.08f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-0.71f, 0.0f, 0.04f);
+    drawCube(0.08f, 2.00f, 0.08f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.71f, 0.0f, 0.04f);
+    drawCube(0.08f, 2.00f, 0.08f);
+    glPopMatrix();
+
+    setMaterialShininess(36.0f);
+    glColor3f(0.47f, 0.61f, 0.70f);
     drawCube(1.5f, 2.0f, 0.05f);
+
+    glColor3f(0.36f, 0.47f, 0.55f);
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 0.035f);
+    drawCube(1.35f, 1.82f, 0.025f);
+    glPopMatrix();
 
     // Soft glass shine. A clean mirror looks better than a fake flat reflection.
     glDisable(GL_LIGHTING);
@@ -1013,7 +1200,7 @@ void drawMirror() {
     glPushMatrix();
     glTranslatef(-0.25f, 0.35f, 0.07f);
     glRotatef(-18, 0, 0, 1);
-    glColor4f(1.0f, 1.0f, 1.0f, lightWhite ? 0.30f : 0.08f);
+    glColor4f(0.92f, 0.97f, 1.0f, lightWhite ? 0.32f : 0.08f);
     glBegin(GL_QUADS);
         glVertex3f(-0.06f, -0.72f, 0.0f);
         glVertex3f( 0.08f, -0.72f, 0.0f);
@@ -1024,7 +1211,7 @@ void drawMirror() {
 
     glPushMatrix();
     glTranslatef(0.0f, 0.68f, 0.075f);
-    glColor4f(1.0f, 0.96f, 0.82f, lightWhite ? 0.34f : 0.05f);
+    glColor4f(0.78f, 0.90f, 1.0f, lightWhite ? 0.26f : 0.04f);
     glBegin(GL_QUADS);
         glVertex3f(-0.62f, -0.05f, 0.0f);
         glVertex3f( 0.62f, -0.05f, 0.0f);
@@ -1036,6 +1223,7 @@ void drawMirror() {
     glDisable(GL_BLEND);
     glEnable(GL_LIGHTING);
 
+    setMaterialShininess(24.0f);
     glPopMatrix();
 }
 
@@ -1109,6 +1297,7 @@ void display() {
     setupLights();
 
     drawRoom();
+    drawWallDecorations();
     drawSceneShadows();
     drawLightIndicators();
     drawWindow();
