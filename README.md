@@ -70,6 +70,7 @@ Keep `green.jpg` in the same directory as the executable when running, because t
 | --- | --- |
 | `1` - `6` | Toggle individual dumbbell animations |
 | `B` | Toggle barbell animation |
+| `U` | Toggle pull-up animation |
 | `7` | Toggle white light |
 | `8` | Toggle green light |
 | `P` | Toggle fan animation |

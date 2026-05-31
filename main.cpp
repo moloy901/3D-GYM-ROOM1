@@ -21,11 +21,14 @@ bool fanOn = true;
 float treadmillAngle = 0.0f;
 float dumbbellY[6] = {0, 0, 0, 0, 0, 0};
 float barbellY = 0.0f;
+float pullUpY = 0.0f;
 const float BARBELL_BASE_Y = 1.70f;
 const float BARBELL_LIFT_RANGE = 0.35f;
+const float PULL_UP_RANGE = 0.52f;
 
 bool dumbbellUp[6] = {false, false, false, false, false, false};
 bool barbellUp = false;
+bool pullUpRaised = false;
 bool lightWhite = true;
 bool lightGreen = true;
 
@@ -402,7 +405,120 @@ void drawWallDecorations() {
     glColor3f(0.95f, 0.18f, 0.06f);
     drawWallText(-0.98f, 5.21f, -5.74f, "GYM ROOM", 0.0030f);
 
+    // Running analog clock on the upper-right front wall
+    glPushMatrix();
+    glTranslatef(4.75f, 5.35f, -5.74f);
+
+    glDisable(GL_LIGHTING);
+
+    glColor3f(0.02f, 0.02f, 0.025f);
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex3f(0.0f, 0.0f, 0.010f);
+        for (int i = 0; i <= 48; i++) {
+            float angle = i * 2.0f * 3.1416f / 48.0f;
+            glVertex3f(cos(angle) * 0.39f, sin(angle) * 0.39f, 0.010f);
+        }
+    glEnd();
+
+    glColor3f(0.94f, 0.94f, 0.90f);
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex3f(0.0f, 0.0f, 0.020f);
+        for (int i = 0; i <= 48; i++) {
+            float angle = i * 2.0f * 3.1416f / 48.0f;
+            glVertex3f(cos(angle) * 0.32f, sin(angle) * 0.32f, 0.020f);
+        }
+    glEnd();
+
+    glColor3f(0.03f, 0.03f, 0.035f);
+    for (int i = 0; i < 12; i++) {
+        glPushMatrix();
+        glRotatef(i * 30.0f, 0, 0, 1);
+        glTranslatef(0.0f, 0.27f, 0.040f);
+        drawCube(0.020f, 0.050f, 0.012f);
+        glPopMatrix();
+    }
+
+    glPushMatrix();
+    glRotatef(-fanAngle * 0.015f, 0, 0, 1);
+    glTranslatef(0.0f, 0.08f, 0.055f);
+    glColor3f(1.0f, 0.25f, 0.72f);
+    drawCube(0.026f, 0.18f, 0.012f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glRotatef(-fanAngle * 0.08f, 0, 0, 1);
+    glTranslatef(0.0f, 0.12f, 0.065f);
+    glColor3f(1.0f, 0.25f, 0.72f);
+    drawCube(0.018f, 0.26f, 0.012f);
+    glPopMatrix();
+
+    glColor3f(1.0f, 0.25f, 0.72f);
+    glPushMatrix();
+    glRotatef(-fanAngle * 0.30f, 0, 0, 1);
+    glTranslatef(0.0f, 0.15f, 0.075f);
+    drawCube(0.010f, 0.31f, 0.010f);
+    glPopMatrix();
+
+    glColor3f(0.02f, 0.02f, 0.025f);
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 0.085f);
+    drawCube(0.070f, 0.070f, 0.012f);
+    glPopMatrix();
+
     glEnable(GL_LIGHTING);
+
+    glPopMatrix();
+
+    glEnable(GL_LIGHTING);
+}
+
+void drawPullUpBar() {
+    glPushMatrix();
+
+    setMaterialShininess(70.0f);
+    glColor3f(0.08f, 0.08f, 0.09f);
+
+    glPushMatrix();
+    glTranslatef(5.78f, 4.45f, -0.95f);
+    drawCube(0.07f, 0.62f, 0.18f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(5.78f, 4.45f, 0.95f);
+    drawCube(0.07f, 0.62f, 0.18f);
+    glPopMatrix();
+
+    glColor3f(0.72f, 0.74f, 0.76f);
+    glPushMatrix();
+    glTranslatef(5.70f, 4.65f, -0.95f);
+    glRotatef(-90, 0, 1, 0);
+    drawCylinder(0.045f, 0.85f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(5.70f, 4.65f, 0.95f);
+    glRotatef(-90, 0, 1, 0);
+    drawCylinder(0.045f, 0.85f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(4.88f, 4.65f, -1.18f);
+    drawCylinder(0.050f, 2.36f);
+    glPopMatrix();
+
+    glColor3f(0.95f, 0.18f, 0.06f);
+    glPushMatrix();
+    glTranslatef(4.88f, 4.65f, -1.18f);
+    drawCylinder(0.070f, 0.16f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(4.88f, 4.65f, 1.02f);
+    drawCylinder(0.070f, 0.16f);
+    glPopMatrix();
+
+    setMaterialShininess(24.0f);
+    glPopMatrix();
 }
 
 void drawDumbbell(float x, float y, float z, float size) {
@@ -644,6 +760,67 @@ void drawManOnBench() {
     glPushMatrix();
     glTranslatef(rightHandX, barY, barZ);
     glutSolidSphere(0.08f, 15, 15);
+    glPopMatrix();
+}
+
+void drawPullUpMan() {
+    float lift = pullUpY;
+    float handY = 4.65f;
+    float shoulderY = 3.92f + lift;
+    float torsoY = 3.36f + lift;
+    float hipY = 2.78f + lift;
+
+    float centerX = 4.78f;
+    float handX = 4.88f;
+
+    glPushMatrix();
+
+    glColor3f(0.92f, 0.70f, 0.52f);
+    drawLimbBetween(centerX, shoulderY, -0.20f, handX, handY, -0.48f, 0.055f);
+    drawLimbBetween(centerX, shoulderY, 0.20f, handX, handY, 0.48f, 0.055f);
+
+    glPushMatrix();
+    glTranslatef(handX, handY, -0.48f);
+    glutSolidSphere(0.075f, 14, 14);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(handX, handY, 0.48f);
+    glutSolidSphere(0.075f, 14, 14);
+    glPopMatrix();
+
+    glColor3f(0.03f, 0.18f, 0.65f);
+    glPushMatrix();
+    glTranslatef(centerX, torsoY, 0.0f);
+    drawCube(0.34f, 1.12f, 0.60f);
+    glPopMatrix();
+
+    glColor3f(0.92f, 0.70f, 0.52f);
+    glPushMatrix();
+    glTranslatef(centerX, shoulderY + 0.12f, 0.0f);
+    drawCube(0.11f, 0.24f, 0.13f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(centerX, shoulderY + 0.34f, 0.0f);
+    glutSolidSphere(0.20f, 22, 22);
+    glPopMatrix();
+
+    glColor3f(0.04f, 0.04f, 0.04f);
+    drawLimbBetween(centerX, hipY + 0.06f, -0.17f, centerX, hipY - 1.22f, -0.24f, 0.065f);
+    drawLimbBetween(centerX, hipY + 0.06f, 0.17f, centerX, hipY - 1.22f, 0.24f, 0.065f);
+
+    glColor3f(0.95f, 0.18f, 0.06f);
+    glPushMatrix();
+    glTranslatef(centerX, hipY - 1.32f, -0.26f);
+    drawCube(0.18f, 0.09f, 0.28f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(centerX, hipY - 1.32f, 0.26f);
+    drawCube(0.18f, 0.09f, 0.28f);
+    glPopMatrix();
+
     glPopMatrix();
 }
 
@@ -1303,6 +1480,8 @@ void display() {
     drawWindow();
     drawMirror();
     drawTubeLight();
+    drawPullUpBar();
+    drawPullUpMan();
     drawDumbbellRack();
     drawBenchPress();
     drawTreadmill();
@@ -1358,6 +1537,17 @@ void update(int value) {
     if (barbellY > barTarget)
         barbellY -= 0.035f;
 
+    float pullUpTarget = pullUpRaised ? PULL_UP_RANGE : 0.0f;
+
+    if (pullUpY < pullUpTarget)
+        pullUpY += 0.025f;
+
+    if (pullUpY > pullUpTarget)
+        pullUpY -= 0.025f;
+
+    if (fabs(pullUpY - pullUpTarget) < 0.026f)
+        pullUpY = pullUpTarget;
+
         // Smooth window open/close fade animation
 float windowTarget = windowOpen ? 1.0f : 0.0f;
 
@@ -1405,6 +1595,11 @@ void keyboard(unsigned char key, int x, int y) {
     case 'b':
     case 'B':
         barbellUp = !barbellUp;
+        break;
+
+    case 'u':
+    case 'U':
+        pullUpRaised = !pullUpRaised;
         break;
 
     case '7':
