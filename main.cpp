@@ -465,8 +465,6 @@ void drawWallDecorations() {
     drawCube(0.070f, 0.070f, 0.012f);
     glPopMatrix();
 
-    glEnable(GL_LIGHTING);
-
     glPopMatrix();
 
     glEnable(GL_LIGHTING);
@@ -627,16 +625,14 @@ void drawDumbbellRack() {
     drawCube(0.12f, 1.35f, 0.18f);
     glPopMatrix();
 
-    float lowerX[3] = {-1.45f, 0.0f, 1.45f};
+    float rackX[3] = {-1.45f, 0.0f, 1.45f};
 
     for (int i = 0; i < 3; i++) {
-        drawDumbbell(lowerX[i], 0.98f + dumbbellY[i], 0.0f, 0.75f + i * 0.08f);
+        drawDumbbell(rackX[i], 0.98f + dumbbellY[i], 0.0f, 0.75f + i * 0.08f);
     }
 
-    float upperX[3] = {-1.45f, 0.0f, 1.45f};
-
     for (int i = 0; i < 3; i++) {
-        drawDumbbell(upperX[i], 1.68f + dumbbellY[i + 3], 0.0f, 0.90f + i * 0.08f);
+        drawDumbbell(rackX[i], 1.68f + dumbbellY[i + 3], 0.0f, 0.90f + i * 0.08f);
     }
 
     glPopMatrix();
@@ -719,11 +715,11 @@ void drawManOnBench() {
     float barY = BARBELL_BASE_Y + barbellY;
     float barZ = -0.15f;
 
-    float shoulderY = 1.00f;
-    float shoulderZ = 0.15f;
+    float shoulderY = 0.88f;
+    float shoulderZ = 0.35f;
 
-    float leftShoulderX = -0.32f;
-    float rightShoulderX = 0.32f;
+    float leftShoulderX = -0.34f;
+    float rightShoulderX = 0.34f;
 
     float leftHandX = -0.75f;
     float rightHandX = 0.75f;
@@ -736,9 +732,19 @@ void drawManOnBench() {
 
     glColor3f(0.92f, 0.70f, 0.52f);
 
+    glPushMatrix();
+    glTranslatef(leftShoulderX, shoulderY, shoulderZ);
+    glutSolidSphere(0.075f, 15, 15);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(rightShoulderX, shoulderY, shoulderZ);
+    glutSolidSphere(0.075f, 15, 15);
+    glPopMatrix();
+
     drawLimbBetween(leftShoulderX, shoulderY, shoulderZ,
                     leftElbowX, elbowY, elbowZ,
-                    0.055f);
+                    0.065f);
 
     drawLimbBetween(leftElbowX, elbowY, elbowZ,
                     leftHandX, barY, barZ,
@@ -746,7 +752,7 @@ void drawManOnBench() {
 
     drawLimbBetween(rightShoulderX, shoulderY, shoulderZ,
                     rightElbowX, elbowY, elbowZ,
-                    0.055f);
+                    0.065f);
 
     drawLimbBetween(rightElbowX, elbowY, elbowZ,
                     rightHandX, barY, barZ,
@@ -1085,64 +1091,6 @@ void drawFan(float x, float z) {
         glColor3f(0.1f, 0.1f, 0.1f);
         drawCube(1.2f, 0.05f, 0.25f);
 
-        glPopMatrix();
-    }
-
-    glPopMatrix();
-}
-
-void drawFlowerPot(float x, float y, float z) {
-    glPushMatrix();
-    glTranslatef(x, y, z);
-
-    // Pot
-    glColor3f(0.55f, 0.25f, 0.08f);
-    glPushMatrix();
-    glTranslatef(0.0f, -0.35f, 0.0f);
-    glScalef(0.28f, 0.30f, 0.22f);
-    glutSolidCube(1.0);
-    glPopMatrix();
-
-    // Stem
-    glColor3f(0.0f, 0.45f, 0.08f);
-    glPushMatrix();
-    glTranslatef(0.0f, -0.05f, 0.0f);
-    glRotatef(-90, 1, 0, 0);
-    drawCylinder(0.025f, 0.45f);
-    glPopMatrix();
-
-    // Leaves
-    glColor3f(0.0f, 0.55f, 0.12f);
-
-    glPushMatrix();
-    glTranslatef(-0.12f, 0.08f, 0.0f);
-    glScalef(0.18f, 0.07f, 0.04f);
-    glutSolidSphere(1.0, 15, 15);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslatef(0.12f, 0.14f, 0.0f);
-    glScalef(0.18f, 0.07f, 0.04f);
-    glutSolidSphere(1.0, 15, 15);
-    glPopMatrix();
-
-    // Flower center
-    glColor3f(1.0f, 0.85f, 0.0f);
-    glPushMatrix();
-    glTranslatef(0.0f, 0.42f, 0.0f);
-    glutSolidSphere(0.07f, 15, 15);
-    glPopMatrix();
-
-    // Flower petals
-    glColor3f(1.0f, 0.15f, 0.35f);
-
-    for (int i = 0; i < 6; i++) {
-        glPushMatrix();
-        glTranslatef(0.0f, 0.42f, 0.0f);
-        glRotatef(i * 60.0f, 0, 0, 1);
-        glTranslatef(0.12f, 0.0f, 0.0f);
-        glScalef(0.09f, 0.045f, 0.035f);
-        glutSolidSphere(1.0, 15, 15);
         glPopMatrix();
     }
 
